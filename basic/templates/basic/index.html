@@ -1,0 +1,8 @@
+{% extends "basic/template.html" %}
+
+{% block body %}
+{% for quizobj in list_of_quiz %}
+<h3><a href="{% url 'basic:quiz_details' quizobj.id %}">{{quizobj.title}}</a></h3>
+{% endfor %}
+{% endblock %}
+

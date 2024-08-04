@@ -1,0 +1,15 @@
+{% extends 'basic/template.html' %}
+
+{% block title %}Quiz List{% endblock %}
+
+{% block body %}
+    <div class="quiz-list">
+        {% for quiz in quizzes %}
+            <a href="{% url 'basic:quiz_details' quiz.id %}" class="quiz-item">
+                <h2 class="quiz-title">{{ quiz.title }}</h2>
+                <p class="quiz-description">{{ quiz.description }}</p>
+            </a>
+        {% endfor %}
+    </div>
+{% endblock %}
+

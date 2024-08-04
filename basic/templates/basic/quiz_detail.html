@@ -1,0 +1,25 @@
+{% extends 'basic/template.html' %}
+
+{% block title %}{{quiz.title}}{% endblock %}
+
+{% block body %}
+    <div class="quiz-details-container">
+        <h1>{{ quiz.title }}</h1>
+        <p>{{ quiz.description }}</p>
+        <p>Time Limit: {{ time_limit }} seconds</p>
+        <p>Instructions: {{ instructions }}</p>
+        <p>Difficulty Level: {{ difficulty_level }}</p>
+        {% if not questions %}
+            <button class="take-quiz-button">Take Quiz</button>
+        {% else %}
+            {% for question in questions %}
+                <h2>{{ question.question_text }}</h2>
+                <ul>
+                    {% for choice in question.choice_set.all %}
+                        <li>{{ choice.choice_text }}</li>
+                    {% endfor %}
+                </ul>
+            {% endfor %}
+        {% endif %}
+    </div>
+{% endblock %}
