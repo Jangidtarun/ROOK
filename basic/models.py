@@ -16,8 +16,11 @@ class Quiz(models.Model):
     description = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     instructions = models.TextField(blank=True, null=True)
+    
     difficulty_level = models.CharField(max_length=20, choices=[('easy', 'Easy'), ('medium', 'Medium'), ('hard', 'Hard')], default='medium')  
     category = models.ForeignKey(Category, on_delete=models.SET_NULL,null=True, blank=True)
+    no_ques = models.IntegerField(default=0)
+    time_limit = models.IntegerField(default=10)  # in minutes
 
     def __str__(self) -> str:
         return self.title
@@ -28,9 +31,8 @@ class Question(models.Model):
     question_text = models.TextField()
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True)
     difficulty_level = models.CharField(max_length=20, choices=[('easy', 'Easy'), ('medium', 'Medium'), ('hard', 'Hard')], default='medium')
-    time_limit = models.IntegerField(default=20)  # in seconds
+    time_limit = models.IntegerField(default=30)  # in seconds
     created_at = models.DateTimeField(auto_now_add=True)
-    order = models.IntegerField(default=0)
 
     def __str__(self) -> str:
         return self.question_text

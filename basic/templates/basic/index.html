@@ -1,8 +1,32 @@
-{% extends "basic/template.html" %}
+{% extends "basic/base.html" %}
 
 {% block body %}
-{% for quizobj in list_of_quiz %}
-<h3><a href="{% url 'basic:quiz_details' quizobj.id %}">{{quizobj.title}}</a></h3>
+<h2>Available Quizes</h2>
+<div class='quiz-list'>
+{% for quiz in list_of_quiz %}
+<div class='quiz-details-container'>
+    <a href="{% url 'basic:quiz_detail' quiz.id %}">
+        <div class=''>
+            <h2 class="quiz-title">{{quiz.title}}</h2>
+            
+            <div class='quiz-specification'>
+                <small><span>
+                    <p>
+                        <strong>Updated:</strong> {{ quiz.created_at }} <br>
+                        <strong>{{ quiz.category | title }}</strong> &middot;
+                        <strong class='difficulty-level-{{ quiz.difficulty_level | first }}'>{{ quiz.difficulty_level | title | first }}</strong> &middot;
+                        <strong>{{ quiz.time_limit }} min</strong> &middot;
+                        <strong>{{ quiz.no_ques }} Q</strong>
+                    </p>
+                </span></small>
+            </div>
+        </div>
+    </a>
+    <a href="{% url 'basic:quiz_detail' quiz.id %}" class="take-quiz-button">View</a>
+    {% comment %} <button  href="{% url 'basic:quiz_detail' quiz.id %}">view more</button> {% endcomment %}
+</div>
 {% endfor %}
+</div>
+
 {% endblock %}
 
