@@ -19,7 +19,6 @@ class Quiz(models.Model):
     
     difficulty_level = models.CharField(max_length=20, choices=[('easy', 'Easy'), ('medium', 'Medium'), ('hard', 'Hard')], default='medium')  
     category = models.ForeignKey(Category, on_delete=models.SET_NULL,null=True, blank=True)
-    no_ques = models.IntegerField(default=0)
     time_limit = models.IntegerField(default=10)  # in minutes
 
     def __str__(self) -> str:
@@ -27,7 +26,7 @@ class Quiz(models.Model):
 
 
 class Question(models.Model):
-    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name='parent_quiz')
+    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE)
     question_text = models.TextField()
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True)
     difficulty_level = models.CharField(max_length=20, choices=[('easy', 'Easy'), ('medium', 'Medium'), ('hard', 'Hard')], default='medium')

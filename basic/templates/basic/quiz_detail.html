@@ -1,4 +1,5 @@
 {% extends 'basic/base.html' %}
+{% load static %}
 
 {% block title %}{{quiz.title}}{% endblock %}
 
@@ -14,10 +15,45 @@
                 <strong>{{ quiz.category | title }}</strong> &middot;
                 <strong class='difficulty-level-{{ quiz.difficulty_level | first }}'>{{ quiz.difficulty_level | title | first }}</strong> &middot;
                 <strong>{{ quiz.time_limit }} min</strong> &middot;
-                <strong>{{ quiz.no_ques }} Q</strong>
+                <strong>{{ num_ques }} Q</strong>
             </p>
         </span></small>
-        </div>
-        <button class="take-quiz-button">Take Quiz</button>
     </div>
+
+    <div id='take-quiz-button-div'>
+        <input type="hidden" id="quiz-id" value="{{ quiz.id }}">
+        <button id='take-quiz-btn' class="take-quiz-button">Take Quiz</button>
+    </div>
+
+    <div id='confirm-dialog'>
+        <div id="popup" class="hidden">
+            <p>Are you sure you want to start the quiz?</p>
+            <button id="confirmBtn">Yes</button>
+            <button id="cancelBtn">No</button>
+        </div>
+        <div id="popupOverlay" class="hidden"></div>
+    </div>
+    
+    <div id='question-paper'>
+        <div class='center-item'>
+            <h3 id='curr-question-text'></h3>
+            <div id='options'>
+                <button class='option' id='option-1'></button>
+                <button class='option' id='option-2'></button>
+                <button class='option' id='option-3'></button>
+                <button class='option' id='option-4'></button>
+            </div>
+
+            <div class="progress-bar-container">
+                <div class="progress-bar"></div>
+            </div>
+        </div>
+
+
+        <div id='quit-quiz-button-div'>
+            <button id='quit-quiz-btn' class="quit-quiz-button">Quit</button>
+        </div>
+    </div>
+
+    <script src="{% static 'basic/logic.js' %}"></script>
 {% endblock %}
