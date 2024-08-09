@@ -1,0 +1,30 @@
+{% extends 'basic/base.html' %}
+
+{% block body %}
+
+<div class="auto-margin">
+    <form action="{% url 'basic:login' %}" method="post">
+        {% csrf_token %}
+        
+        <div class="warning">
+          <small class="form-text">{{ message }}</small>
+        </div>
+
+        <div class="form-group">
+          <small class="form-text text-muted">Enter your username</small>
+          <input type="text" class="form-control" name="username">
+        </div>
+
+        <div class="form-group">
+          <small class="form-text text-muted">Enter your password</small>
+          <input type="password" class="form-control" name="password">
+          <!-- <a href="#">
+            <small class="form-text text-muted">Forgot password?</small>
+          </a> -->
+        </div>
+        
+        <button type="submit" class="btn btn-link">Enter</button>
+      </form>
+</div>
+
+{% endblock %}

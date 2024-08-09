@@ -1,9 +1,14 @@
 from typing import Any
-from django.shortcuts import render, get_object_or_404, get_list_or_404
-from django.http import HttpResponse, JsonResponse
-from django.views.generic import ListView, DetailView
+from django.db import IntegrityError
+from django.shortcuts import render, get_object_or_404, get_list_or_404, redirect
+from django.http import JsonResponse, HttpResponseRedirect
 
-from .models import Category, Quiz, Question, Choice, UserAnswer, Score
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import login, logout, authenticate
+from django.urls import reverse
+
+
+from .models import Quiz, Choice, User
 
 # Create your views here.
 def index(request):
@@ -18,6 +23,7 @@ def quizlistview(request):
 
 
 # Quiz Detail: Show specific details of a quiz, including questions and options.
+@login_required
 def quizdetailview(request, quiz_id):
     quiz = get_object_or_404(Quiz, pk=quiz_id)
     all_questions = quiz.question_set.all()
@@ -29,7 +35,20 @@ def quizdetailview(request, quiz_id):
 
 
 # Take Quiz: Allow users to attempt a quiz and submit answers.
+@login_required
 def takequizview(request, quiz_id):
+    if request.method == 'GET':
+        # load the quiz if it exists
+        quiz = get_object_or_404(Quiz, pk=quiz_id)
+        questions = quiz.question_set.all()
+        return render(request, 'basic/take_quiz.html', {
+            'quiz': quiz,
+            'questions': questions,
+        })
+
+           
+
+def load_quizdata_json(request, quiz_id):
     if request.method == 'GET':
         # load the quiz if it exists
         quiz = get_object_or_404(Quiz, pk=quiz_id)
@@ -38,7 +57,6 @@ def takequizview(request, quiz_id):
         quiz_data = {
             'id': quiz.id,
             'title': quiz.title,
-            # Add other quiz fields as needed
         }
 
         questions_data = [
@@ -58,8 +76,98 @@ def takequizview(request, quiz_id):
         return JsonResponse({
             'quiz': quiz_data,
             'questions': questions_data,
-        })   
-
+        })
 
 # Results: Display quiz results and scores.
-# User Profile: Show a user's quiz history and scores.
+def resultsview(request, quiz_id):
+    if request.method == 'POST':
+  
+
+        score = 0
+        quiz = get_object_or_404(Quiz, pk=quiz_id)
+        all_questions = quiz.question_set.all()
+        num_questions = all_questions.count()
+
+        for question in all_questions:
+            selected_choice = request.POST.get(f'option-{question.id}')
+            try:
+                choice = Choice.objects.get(pk=selected_choice, question=question, is_correct=True)
+                if choice:
+                    score += 1
+            except Choice.DoesNotExist:
+                pass
+
+        user = request.user
+        user.score += score
+        user.attempts += 1
+        user.save()
+        
+        percentage = (score / num_questions) * 100
+        context = {
+            'score': score,
+            'total_questions': num_questions,
+            'percentage': percentage
+        }
+        return render(request, 'basic/results.html', context)
+    # else:
+
+
+
+def login_view(req):
+    if req.method == "POST":
+
+        # Attempt to sign user in
+        username = req.POST["username"]
+        password = req.POST["password"]
+        user = authenticate(req, username=username, password=password)
+
+        # Check if authentication successful
+        if user is not None:
+            login(req, user)
+            return redirect('index')
+        else:
+            return render(req, "basic/login.html", {
+                "message": "Invalid username and/or password."
+            })
+    else:
+        return render(req, "basic/login.html")
+
+
+def logout_view(req):
+    logout(req)
+    return HttpResponseRedirect(reverse(login_view))
+
+
+def register(req):
+    if req.method == "POST":
+        username = req.POST["username"]
+
+        # Ensure password matches confirmation
+        password = req.POST["password"]
+        confirmation = req.POST["confirmation"]
+        if password != confirmation:
+            return render(req, "basic/register.html", {
+                "message": "Passwords must match."
+            })
+        
+        # Attempt to create new user
+        try:
+            user = User.objects.create_user(
+                username=username, 
+                password=password,
+            )
+            user.save()
+        except IntegrityError:
+            return render(req, "basic/register.html", {
+                "message": "Username already taken."
+            })
+        login(req, user)
+        return HttpResponseRedirect(reverse("index"))
+    else:
+        return render(req, "basic/register.html")
+
+@login_required
+def user_profile(request):
+    user = request.user
+    context = {'user': user}
+    return render(request, 'basic/user_profile.html', context)
